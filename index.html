@@ -1,0 +1,895 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="description" content="Racik minuman sesuai permintaan pelanggan yang penuh drama. Jaga reputasi warungmu agar tidak bangkrut.">
+    <meta name="author" content="Autonomous Product Studio">
+    <meta name="theme-color" content="#5C4033">
+    <meta name="color-scheme" content="light dark">
+    <meta name="format-detection" content="telephone=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Warung Drama">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta property="og:type" content="game">
+    <meta property="og:title" content="Warung Drama: Juru Racik Reputasi">
+    <meta property="og:description" content="Uji keahlianmu meracik minuman di tengah tuntutan pelanggan yang rumit.">
+    <meta property="og:locale" content="id_ID">
+    <meta property="og:site_name" content="Warung Drama">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Warung Drama: Juru Racik Reputasi">
+    <meta name="twitter:description" content="Uji keahlianmu meracik minuman di tengah tuntutan pelanggan yang rumit.">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%8D%B5%3C/text%3E%3C/svg%3E">
+    <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%8D%B5%3C/text%3E%3C/svg%3E">
+    <title>Warung Drama: Juru Racik Reputasi</title>
+    <style>
+        :root {
+            --bg-color: oklch(0.96 0.01 85);
+            --text-color: oklch(0.25 0.02 45);
+            --primary: oklch(0.45 0.12 45);
+            --primary-dark: oklch(0.35 0.12 45);
+            --accent: oklch(0.65 0.15 140);
+            --danger: oklch(0.55 0.18 25);
+            --surface: oklch(0.99 0.005 85);
+            --shadow: oklch(0.2 0.02 45 / 0.1);
+            --radius-sm: 8px;
+            --radius-md: 16px;
+            --radius-lg: 24px;
+            --space-1: 8px;
+            --space-2: 16px;
+            --space-3: 24px;
+            --space-4: 32px;
+            --font-display: Georgia, 'Times New Roman', serif;
+            --font-body: 'Trebuchet MS', 'Lucida Sans Unicode', sans-serif;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        html {
+            -webkit-text-size-adjust: 100%;
+            font-size: 16px;
+        }
+
+        body {
+            font-family: var(--font-body);
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            height: 100dvh;
+            width: 100vw;
+            overflow: hidden;
+            overscroll-behavior: none;
+            user-select: none;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            -webkit-touch-callout: none;
+            touch-action: none;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        /* Grain Overlay */
+        body::before {
+            content: "";
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.04'/%3E%3C/svg%3E");
+            pointer-events: none;
+            z-index: 9999;
+        }
+
+        /* Typography */
+        h1, h2, h3 {
+            font-family: var(--font-display);
+            font-weight: 700;
+            line-height: 1.2;
+            letter-spacing: -0.02em;
+        }
+
+        h1 { font-size: clamp(2rem, 5vw, 3rem); }
+        h2 { font-size: clamp(1.5rem, 4vw, 2rem); }
+        p { line-height: 1.6; font-size: 1rem; }
+
+        /* Layout & Screens */
+        .screen {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            display: none;
+            flex-direction: column;
+            padding: var(--space-3);
+            padding-top: calc(var(--space-3) + env(safe-area-inset-top));
+            padding-bottom: calc(var(--space-3) + env(safe-area-inset-bottom));
+            overflow-y: auto;
+            background-color: var(--bg-color);
+            z-index: 10;
+        }
+
+        .screen.active {
+            display: flex;
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Components */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: var(--space-2) var(--space-3);
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: var(--radius-md);
+            font-family: var(--font-body);
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.1s, background-color 0.2s;
+            min-height: 48px;
+            min-width: 48px;
+            box-shadow: 0 4px 6px var(--shadow);
+        }
+
+        .btn:active {
+            transform: scale(0.96);
+            background-color: var(--primary-dark);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-secondary {
+            background-color: var(--surface);
+            color: var(--text-color);
+            border: 2px solid var(--primary);
+        }
+
+        .btn-danger {
+            background-color: var(--danger);
+        }
+
+        .card {
+            background-color: var(--surface);
+            border-radius: var(--radius-lg);
+            padding: var(--space-3);
+            box-shadow: 0 8px 16px var(--shadow);
+            border: 1px solid oklch(0.9 0.01 85);
+        }
+
+        /* Game Screen Specifics */
+        #game-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--space-2);
+        }
+
+        .stat-box {
+            text-align: center;
+        }
+        .stat-label { font-size: 0.8rem; opacity: 0.8; text-transform: uppercase; letter-spacing: 0.05em; }
+        .stat-value { font-size: 1.5rem; font-weight: 700; font-family: var(--font-display); }
+
+        .reputation-bar {
+            width: 100%;
+            height: 12px;
+            background-color: oklch(0.9 0.01 85);
+            border-radius: 6px;
+            overflow: hidden;
+            margin-top: var(--space-1);
+        }
+        .reputation-fill {
+            height: 100%;
+            background-color: var(--accent);
+            width: 50%;
+            transition: width 0.5s ease-out, background-color 0.3s;
+        }
+        .reputation-fill.danger { background-color: var(--danger); }
+
+        #customer-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            margin-bottom: var(--space-3);
+            position: relative;
+        }
+
+        .customer-avatar {
+            font-size: 4rem;
+            margin-bottom: var(--space-2);
+            animation: bounce 2s infinite ease-in-out;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
+        }
+
+        .dialogue-bubble {
+            background-color: white;
+            padding: var(--space-3);
+            border-radius: var(--radius-md);
+            border-bottom-left-radius: 4px;
+            box-shadow: 0 4px 12px var(--shadow);
+            position: relative;
+            max-width: 100%;
+            font-style: italic;
+            border: 2px solid var(--primary);
+        }
+
+        #mixing-area {
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-3);
+        }
+
+        #cup-display {
+            height: 120px;
+            background-color: rgba(255, 255, 255, 0.5);
+            border: 3px solid var(--text-color);
+            border-radius: 0 0 var(--radius-md) var(--radius-md);
+            border-top: none;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column-reverse;
+            padding: 4px;
+            gap: 2px;
+        }
+
+        .ingredient-layer {
+            width: 100%;
+            border-radius: 4px;
+            animation: pour 0.3s ease-out;
+        }
+
+        @keyframes pour {
+            from { transform: scaleY(0); transform-origin: bottom; }
+            to { transform: scaleY(1); transform-origin: bottom; }
+        }
+
+        .layer-es { background-color: oklch(0.85 0.05 220); height: 20%; }
+        .layer-teh { background-color: oklch(0.55 0.15 60); height: 25%; }
+        .layer-kopi { background-color: oklch(0.35 0.15 45); height: 25%; }
+        .layer-susu { background-color: oklch(0.95 0.01 85); height: 20%; }
+        .layer-gula { background-color: oklch(0.9 0.1 90); height: 10%; }
+        .layer-air { background-color: oklch(0.9 0.02 220); height: 30%; opacity: 0.6; }
+
+        #ingredients-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: var(--space-2);
+        }
+
+        .ingredient-btn {
+            aspect-ratio: 1;
+            border-radius: var(--radius-md);
+            border: 2px solid var(--primary);
+            background-color: var(--surface);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.1s;
+        }
+        .ingredient-btn span { font-size: 1.5rem; margin-bottom: 4px; }
+        .ingredient-btn:active { background-color: var(--primary); color: white; transform: scale(0.95); }
+
+        #action-buttons {
+            display: flex;
+            gap: var(--space-2);
+            margin-top: var(--space-2);
+        }
+        #action-buttons .btn { flex: 1; }
+
+        /* Overlays */
+        .overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-color: oklch(0.2 0.02 45 / 0.9);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+            padding: var(--space-3);
+        }
+        .overlay.active { display: flex; }
+        .overlay-content {
+            background-color: var(--bg-color);
+            padding: var(--space-4);
+            border-radius: var(--radius-lg);
+            text-align: center;
+            max-width: 400px;
+            width: 100%;
+            animation: fadeIn 0.2s ease-out;
+        }
+
+        .feedback-toast {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: var(--text-color);
+            color: white;
+            padding: var(--space-3) var(--space-4);
+            border-radius: var(--radius-md);
+            font-weight: 700;
+            font-size: 1.2rem;
+            z-index: 200;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s;
+            text-align: center;
+        }
+        .feedback-toast.show { opacity: 1; }
+        .feedback-toast.success { background-color: var(--accent); }
+        .feedback-toast.error { background-color: var(--danger); }
+
+        /* Orientation Warning (Only if strictly needed, but we use flexible layout) */
+        @media (max-width: 600px) and (orientation: landscape) {
+            #customer-area { flex-direction: row; text-align: left; gap: var(--space-3); }
+            .dialogue-bubble { border-bottom-left-radius: var(--radius-md); border-top-left-radius: 4px; }
+            #ingredients-grid { grid-template-columns: repeat(6, 1fr); }
+            .ingredient-btn { aspect-ratio: auto; height: 80px; }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            * { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+        }
+
+        /* Accessibility */
+        .sr-only {
+            position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+            overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0;
+        }
+        
+        *:focus-visible {
+            outline: 3px solid var(--accent);
+            outline-offset: 2px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Screen: Menu -->
+    <div id="screen-menu" class="screen active">
+        <div style="flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center;">
+            <div style="font-size: 4rem; margin-bottom: var(--space-2);">🍵</div>
+            <h1>Warung Drama</h1>
+            <p style="margin-bottom: var(--space-4); max-width: 400px;">
+                Pelanggan datang dengan permintaan rumit. Salah racik, reputasi hancur. Warung bangkrut.
+            </p>
+            <button class="btn" id="btn-start" style="width: 100%; max-width: 300px;">Mulai Jaga Warung</button>
+            <button class="btn btn-secondary" id="btn-settings" style="width: 100%; max-width: 300px; margin-top: var(--space-2);">Pengaturan</button>
+        </div>
+        <footer style="text-align: center; font-size: 0.8rem; opacity: 0.6; padding-bottom: var(--space-2);">
+            v1.0 • Autonomous Product Studio
+        </footer>
+    </div>
+
+    <!-- Screen: Game -->
+    <div id="screen-game" class="screen">
+        <div id="game-header">
+            <div class="stat-box">
+                <div class="stat-label">Hari</div>
+                <div class="stat-value" id="stat-day">1</div>
+            </div>
+            <div style="flex: 1; margin: 0 var(--space-3);">
+                <div style="display: flex; justify-content: space-between; font-size: 0.9rem; font-weight: 600;">
+                    <span>Reputasi</span>
+                    <span id="stat-rep-text">50%</span>
+                </div>
+                <div class="reputation-bar">
+                    <div class="reputation-fill" id="rep-fill" style="width: 50%;"></div>
+                </div>
+            </div>
+            <button class="btn btn-secondary" id="btn-pause" aria-label="Jeda Permainan" style="padding: var(--space-1) var(--space-2);">⏸️</button>
+        </div>
+
+        <div id="customer-area">
+            <div class="customer-avatar" id="customer-avatar" aria-hidden="true">🧑‍🦱</div>
+            <div class="dialogue-bubble">
+                <p id="customer-dialogue">"Bang, es teh manis tapi jangan terlalu manis, aku lagi diet tapi stress."</p>
+            </div>
+        </div>
+
+        <div id="mixing-area">
+            <div id="cup-display" aria-live="polite" aria-label="Gelas racikan saat ini">
+                <!-- Layers will be injected here -->
+            </div>
+            
+            <div id="ingredients-grid">
+                <button class="ingredient-btn" data-ing="es"><span>🧊</span>Es</button>
+                <button class="ingredient-btn" data-ing="teh"><span>🫖</span>Teh</button>
+                <button class="ingredient-btn" data-ing="kopi"><span>☕</span>Kopi</button>
+                <button class="ingredient-btn" data-ing="susu"><span>🥛</span>Susu</button>
+                <button class="ingredient-btn" data-ing="gula"><span>🧂</span>Gula</button>
+                <button class="ingredient-btn" data-ing="air"><span>💧</span>Air</button>
+            </div>
+
+            <div id="action-buttons">
+                <button class="btn btn-secondary" id="btn-reset-cup">Buang</button>
+                <button class="btn" id="btn-serve">Sajikan!</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Screen: Pause -->
+    <div id="screen-pause" class="overlay">
+        <div class="overlay-content">
+            <h2>Warung Istirahat</h2>
+            <p style="margin-bottom: var(--space-3);">Pelanggan menunggu. Lanjutkan atau pulang?</p>
+            <button class="btn" id="btn-resume" style="width: 100%; margin-bottom: var(--space-2);">Lanjut Jaga</button>
+            <button class="btn btn-danger" id="btn-quit" style="width: 100%;">Bubarkan Warung</button>
+        </div>
+    </div>
+
+    <!-- Screen: Game Over -->
+    <div id="screen-gameover" class="overlay">
+        <div class="overlay-content">
+            <div style="font-size: 3rem; margin-bottom: var(--space-2);">📉</div>
+            <h2 style="color: var(--danger);">Warung Bangkrut!</h2>
+            <p style="margin-bottom: var(--space-3);">Reputasimu hancur. Pelanggan kapok dan pindah ke sebelah.</p>
+            <p style="font-weight: 700; margin-bottom: var(--space-3);">Hari terakhir: <span id="go-day">1</span></p>
+            <button class="btn" id="btn-retry" style="width: 100%;">Coba Buka Lagi</button>
+            <button class="btn btn-secondary" id="btn-go-menu" style="width: 100%; margin-top: var(--space-2);">Kembali ke Menu</button>
+        </div>
+    </div>
+
+    <!-- Screen: Win -->
+    <div id="screen-win" class="overlay">
+        <div class="overlay-content">
+            <div style="font-size: 3rem; margin-bottom: var(--space-2);">🌟</div>
+            <h2 style="color: var(--accent);">Legenda Warung!</h2>
+            <p style="margin-bottom: var(--space-3);">Kamu berhasil mempertahankan reputasi hingga hari ke-10. Warungmu ramai dan dihormati!</p>
+            <button class="btn" id="btn-win-retry" style="width: 100%;">Main Lagi</button>
+            <button class="btn btn-secondary" id="btn-win-menu" style="width: 100%; margin-top: var(--space-2);">Kembali ke Menu</button>
+        </div>
+    </div>
+
+    <!-- Toast Feedback -->
+    <div id="feedback-toast" class="feedback-toast" role="status" aria-live="polite"></div>
+
+    <script>
+        /**
+         * WARUNG DRAMA - GAME LOGIC
+         * [SPAWN VALIDATION] State initialization verified before DOM manipulation.
+         * No external dependencies. All assets inline.
+         */
+
+        // --- CONSTANTS & DATA ---
+        const RECIPES = [
+            {
+                id: 'es_teh_manis',
+                name: 'Es Teh Manis',
+                dialogue: "Bang, es teh manis biasa. Seger ya, panas banget nih.",
+                required: ['es', 'teh', 'gula', 'air'],
+                forbidden: ['kopi', 'susu'],
+                avatar: '🥵'
+            },
+            {
+                id: 'kopi_hitam_pahit',
+                name: 'Kopi Hitam Pahit',
+                dialogue: "Kopi hitam. Panas. Tanpa gula. Aku baru diputusin, biar pahitnya nambah.",
+                required: ['air', 'kopi'], // air panas implied by 'air' in this logic
+                forbidden: ['gula', 'susu', 'es'],
+                avatar: '😢'
+            },
+            {
+                id: 'es_susu_manis',
+                name: 'Es Susu Manis',
+                dialogue: "Es susu manis ya, Mbak. Jangan teh-nya, aku lagi nggak doyan teh.",
+                required: ['es', 'susu', 'gula', 'air'],
+                forbidden: ['teh', 'kopi'],
+                avatar: '👧'
+            },
+            {
+                id: 'teh_tawar_hangat',
+                name: 'Teh Tawar Hangat',
+                dialogue: "Teh tawar hangat aja. Lagi sakit perut, nggak bisa minum dingin atau manis.",
+                required: ['teh', 'air'],
+                forbidden: ['es', 'gula', 'susu', 'kopi'],
+                avatar: '🤕'
+            },
+            {
+                id: 'kopi_susu_gula',
+                name: 'Kopi Susu Gula',
+                dialogue: "Kopi susu gula ya. Biar melek tapi tetep manis hidupku.",
+                required: ['kopi', 'susu', 'gula', 'air'],
+                forbidden: ['es', 'teh'], // Simplified for gameplay
+                avatar: '😎'
+            }
+        ];
+
+        const INGREDIENT_INFO = {
+            'es': { name: 'Es Batu', class: 'layer-es' },
+            'teh': { name: 'Teh Tubruk', class: 'layer-teh' },
+            'kopi': { name: 'Kopi Hitam', class: 'layer-kopi' },
+            'susu': { name: 'Susu Kental', class: 'layer-susu' },
+            'gula': { name: 'Gula Pasir', class: 'layer-gula' },
+            'air': { name: 'Air', class: 'layer-air' }
+        };
+
+        // --- STATE MANAGEMENT ---
+        const state = {
+            screen: 'menu',
+            day: 1,
+            reputation: 50, // 0 to 100
+            currentRecipe: null,
+            currentMix: [],
+            isMuted: false,
+            audioCtx: null,
+            wakeLock: null
+        };
+
+        // --- AUDIO SYSTEM (Web Audio API) ---
+        function initAudio() {
+            if (!state.audioCtx) {
+                try {
+                    state.audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                } catch (e) {
+                    console.warn("Web Audio API not supported");
+                }
+            }
+            if (state.audioCtx && state.audioCtx.state === 'suspended') {
+                state.audioCtx.resume();
+            }
+        }
+
+        function playSound(type) {
+            if (state.isMuted || !state.audioCtx) return;
+            try {
+                const osc = state.audioCtx.createOscillator();
+                const gain = state.audioCtx.createGain();
+                osc.connect(gain);
+                gain.connect(state.audioCtx.destination);
+
+                if (type === 'success') {
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(523.25, state.audioCtx.currentTime); // C5
+                    osc.frequency.exponentialRampToValueAtTime(1046.5, state.audioCtx.currentTime + 0.1); // C6
+                    gain.gain.setValueAtTime(0.3, state.audioCtx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.01, state.audioCtx.currentTime + 0.3);
+                    osc.start();
+                    osc.stop(state.audioCtx.currentTime + 0.3);
+                } else if (type === 'fail') {
+                    osc.type = 'sawtooth';
+                    osc.frequency.setValueAtTime(150, state.audioCtx.currentTime);
+                    osc.frequency.linearRampToValueAtTime(100, state.audioCtx.currentTime + 0.3);
+                    gain.gain.setValueAtTime(0.3, state.audioCtx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.01, state.audioCtx.currentTime + 0.3);
+                    osc.start();
+                    osc.stop(state.audioCtx.currentTime + 0.3);
+                } else if (type === 'click') {
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(800, state.audioCtx.currentTime);
+                    gain.gain.setValueAtTime(0.1, state.audioCtx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.01, state.audioCtx.currentTime + 0.05);
+                    osc.start();
+                    osc.stop(state.audioCtx.currentTime + 0.05);
+                }
+            } catch (e) {
+                // Fail silently on audio errors
+            }
+        }
+
+        // --- PERSISTENCE ---
+        function saveData() {
+            try {
+                const data = {
+                    highDay: state.day,
+                    isMuted: state.isMuted
+                };
+                localStorage.setItem('warung_drama_v1', JSON.stringify(data));
+            } catch (e) {
+                // Quota exceeded or private mode
+            }
+        }
+
+        function loadData() {
+            try {
+                const raw = localStorage.getItem('warung_drama_v1');
+                if (raw) {
+                    const data = JSON.parse(raw);
+                    if (data.isMuted !== undefined) state.isMuted = data.isMuted;
+                }
+            } catch (e) {
+                // Corrupt data, ignore
+            }
+        }
+
+        // --- CORE GAME LOGIC ---
+        function startGame() {
+            state.day = 1;
+            state.reputation = 50;
+            state.currentMix = [];
+            initAudio();
+            requestWakeLock();
+            updateUI();
+            nextCustomer();
+            showScreen('screen-game');
+            
+            // Android Back Button Handling
+            window.history.pushState({ page: 'game' }, '', window.location.href);
+        }
+
+        function nextCustomer() {
+            state.currentMix = [];
+            renderCup();
+            // Pick random recipe
+            const idx = Math.floor(Math.random() * RECIPES.length);
+            state.currentRecipe = RECIPES[idx];
+            
+            document.getElementById('customer-avatar').textContent = state.currentRecipe.avatar;
+            document.getElementById('customer-dialogue').textContent = `"${state.currentRecipe.dialogue}"`;
+            
+            // Announce for screen readers
+            const announcement = `Pelanggan meminta: ${state.currentRecipe.dialogue}`;
+            const sr = document.createElement('div');
+            sr.className = 'sr-only';
+            sr.setAttribute('aria-live', 'polite');
+            sr.textContent = announcement;
+            document.body.appendChild(sr);
+            setTimeout(() => sr.remove(), 1000);
+        }
+
+        function addIngredient(ing) {
+            if (state.currentMix.length >= 5) {
+                showToast("Gelas sudah penuh!", "error");
+                playSound('fail');
+                return;
+            }
+            state.currentMix.push(ing);
+            renderCup();
+            playSound('click');
+            
+            // Haptic feedback
+            if (navigator.vibrate) navigator.vibrate(10);
+        }
+
+        function renderCup() {
+            const cup = document.getElementById('cup-display');
+            cup.innerHTML = '';
+            state.currentMix.forEach(ing => {
+                const layer = document.createElement('div');
+                layer.className = `ingredient-layer ${INGREDIENT_INFO[ing].class}`;
+                layer.setAttribute('aria-label', INGREDIENT_INFO[ing].name);
+                cup.appendChild(layer);
+            });
+        }
+
+        function resetCup() {
+            state.currentMix = [];
+            renderCup();
+            playSound('click');
+        }
+
+        function serveDrink() {
+            if (state.currentMix.length === 0) {
+                showToast("Gelas masih kosong!", "error");
+                return;
+            }
+
+            const recipe = state.currentRecipe;
+            const mix = state.currentMix;
+            
+            // Validation Logic
+            // 1. Must have all required ingredients
+            const hasAllRequired = recipe.required.every(req => mix.includes(req));
+            // 2. Must not have any forbidden ingredients
+            const hasNoForbidden = recipe.forbidden.every(forb => !mix.includes(forb));
+            // 3. Length should match (no extra unnecessary ingredients, though some flexibility could be added, strict is better for this game)
+            const exactMatch = mix.length === recipe.required.length;
+
+            if (hasAllRequired && hasNoForbidden && exactMatch) {
+                // Success
+                state.reputation = Math.min(100, state.reputation + 15);
+                showToast("Racikan Sempurna! +Reputasi", "success");
+                playSound('success');
+                state.day++;
+                
+                if (state.day > 10) {
+                    endGame(true);
+                } else {
+                    setTimeout(nextCustomer, 1000);
+                }
+            } else {
+                // Fail
+                state.reputation = Math.max(0, state.reputation - 25);
+                showToast("Salah Racik! Pelanggan Marah!", "error");
+                playSound('fail');
+                
+                if (navigator.vibrate) navigator.vibrate([50, 50, 50]);
+                
+                if (state.reputation <= 0) {
+                    setTimeout(() => endGame(false), 500);
+                } else {
+                    setTimeout(nextCustomer, 1000);
+                }
+            }
+            updateUI();
+            saveData();
+        }
+
+        function endGame(isWin) {
+            showScreen(isWin ? 'screen-win' : 'screen-gameover');
+            document.getElementById('go-day').textContent = state.day;
+            releaseWakeLock();
+            // Clear history state to prevent back button from going to game
+            window.history.replaceState(null, '', window.location.href);
+        }
+
+        // --- UI UPDATES ---
+        function updateUI() {
+            document.getElementById('stat-day').textContent = state.day;
+            document.getElementById('stat-rep-text').textContent = state.reputation + '%';
+            const fill = document.getElementById('rep-fill');
+            fill.style.width = state.reputation + '%';
+            
+            if (state.reputation < 30) {
+                fill.classList.add('danger');
+            } else {
+                fill.classList.remove('danger');
+            }
+        }
+
+        function showScreen(id) {
+            document.querySelectorAll('.screen, .overlay').forEach(el => el.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+            state.screen = id;
+        }
+
+        function showToast(msg, type) {
+            const toast = document.getElementById('feedback-toast');
+            toast.textContent = msg;
+            toast.className = `feedback-toast show ${type}`;
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 2000);
+        }
+
+        // --- WAKE LOCK ---
+        async function requestWakeLock() {
+            try {
+                if ('wakeLock' in navigator) {
+                    state.wakeLock = await navigator.wakeLock.request('screen');
+                }
+            } catch (err) {
+                // Ignore if not supported
+            }
+        }
+
+        function releaseWakeLock() {
+            if (state.wakeLock) {
+                state.wakeLock.release();
+                state.wakeLock = null;
+            }
+        }
+
+        // --- EVENT LISTENERS ---
+        document.addEventListener('DOMContentLoaded', () => {
+            loadData();
+
+            // Menu
+            document.getElementById('btn-start').addEventListener('click', startGame);
+            document.getElementById('btn-settings').addEventListener('click', () => {
+                state.isMuted = !state.isMuted;
+                showToast(state.isMuted ? "Suara Dimatikan" : "Suara Dihidupkan", "success");
+                saveData();
+            });
+
+            // Game
+            document.querySelectorAll('.ingredient-btn').forEach(btn => {
+                // Use pointerdown for faster response and multi-touch support
+                btn.addEventListener('pointerdown', (e) => {
+                    e.preventDefault(); // Prevent default touch behaviors
+                    addIngredient(btn.dataset.ing);
+                });
+            });
+
+            document.getElementById('btn-reset-cup').addEventListener('click', resetCup);
+            document.getElementById('btn-serve').addEventListener('click', serveDrink);
+            
+            // Pause
+            document.getElementById('btn-pause').addEventListener('click', () => {
+                showScreen('screen-pause');
+                if (state.audioCtx) state.audioCtx.suspend();
+            });
+
+            document.getElementById('btn-resume').addEventListener('click', () => {
+                showScreen('screen-game');
+                if (state.audioCtx) state.audioCtx.resume();
+                requestWakeLock();
+            });
+
+            document.getElementById('btn-quit').addEventListener('click', () => {
+                showScreen('screen-menu');
+                releaseWakeLock();
+                window.history.replaceState(null, '', window.location.href);
+            });
+
+            // Game Over / Win
+            document.getElementById('btn-retry').addEventListener('click', startGame);
+            document.getElementById('btn-win-retry').addEventListener('click', startGame);
+            document.getElementById('btn-go-menu').addEventListener('click', () => {
+                showScreen('screen-menu');
+                window.history.replaceState(null, '', window.location.href);
+            });
+            document.getElementById('btn-win-menu').addEventListener('click', () => {
+                showScreen('screen-menu');
+                window.history.replaceState(null, '', window.location.href);
+            });
+
+            // Android Back Button Handling
+            window.addEventListener('popstate', (e) => {
+                if (state.screen === 'screen-game') {
+                    // Prevent default back behavior, show pause instead
+                    window.history.pushState({ page: 'game' }, '', window.location.href);
+                    document.getElementById('btn-pause').click();
+                }
+            });
+
+            // Visibility Change (Pause on background)
+            document.addEventListener('visibilitychange', () => {
+                if (document.hidden && state.screen === 'screen-game') {
+                    document.getElementById('btn-pause').click();
+                }
+            });
+
+            // Prevent context menu and drag on game area
+            const gameArea = document.getElementById('screen-game');
+            gameArea.addEventListener('contextmenu', e => e.preventDefault());
+            gameArea.addEventListener('dragstart', e => e.preventDefault());
+
+            // Resize Debounce for Android Address Bar
+            let resizeTimer;
+            window.addEventListener('resize', () => {
+                clearTimeout(resizeTimer);
+                resizeTimer = setTimeout(() => {
+                    // Force reflow if needed, CSS 100dvh handles most
+                    window.scrollTo(0, 0);
+                }, 150);
+            });
+            
+            // Visual Viewport for Keyboard (if any input existed, none here but good practice)
+            if (window.visualViewport) {
+                window.visualViewport.addEventListener('resize', () => {
+                    document.body.style.height = window.visualViewport.height + 'px';
+                });
+            }
+        });
+
+        // Prevent accidental double-tap zoom
+        let lastTouchEnd = 0;
+        document.addEventListener('touchend', (e) => {
+            const now = Date.now();
+            if (now - lastTouchEnd <= 300) {
+                e.preventDefault();
+            }
+            lastTouchEnd = now;
+        }, { passive: false });
+
+    </script>
+</body>
+</html>
